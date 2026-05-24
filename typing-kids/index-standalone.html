@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 键盘小勇士 - 打字练习</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234D96FF'/><text x='50' y='50' text-anchor='middle' dominant-baseline='central' font-size='55'>⌨️</text></svg>">
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,sans-serif;background:#0f0c29;color:#fff;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
+::selection{background:rgba(77,150,255,.4);color:#fff}
+button,input{font-family:inherit}
+.bg-layer{position:fixed;inset:0;z-index:-1;background:linear-gradient(135deg,#0f0c29,#1a1a3e,#24243e)}
+.bg-layer::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(77,150,255,.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,107,107,.1) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(107,203,119,.1) 0%,transparent 50%)}
+.select-wrap{max-width:900px;margin:0 auto;padding:30px 20px}
+.header{text-align:center;margin-bottom:24px}
+.title{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#ffd93d,#ff6b6b,#4d96ff,#6bcb77);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:grad-shift 4s ease infinite}
+@keyframes grad-shift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.subtitle{color:rgba(255,255,255,.6);font-size:1.1rem;margin-top:8px}
+.tabs{display:flex;justify-content:center;gap:12px;margin-bottom:24px}
+.tab{padding:10px 28px;border:2px solid rgba(255,255,255,.2);border-radius:30px;background:transparent;color:rgba(255,255,255,.7);font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tab:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.tab.active{background:linear-gradient(135deg,#4d96ff,#6bcb77);border-color:transparent;color:#fff;box-shadow:0 4px 15px rgba(77,150,255,.4)}
+.level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.lv-card{position:relative;border:none;border-radius:20px;padding:20px;cursor:pointer;text-align:center;transition:all .3s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.2)}
+.lv-card:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.lv-icon{font-size:2.5rem;margin-bottom:8px}
+.lv-name{font-size:1.1rem;font-weight:800;color:#2d3436;margin-bottom:4px}
+.lv-desc{font-size:.8rem;color:rgba(0,0,0,.5);margin-bottom:8px}
+.lv-age{display:inline-block;padding:3px 12px;background:rgba(255,255,255,.4);border-radius:20px;font-size:.75rem;font-weight:600;color:#2d3436}
+.lv-badge{position:absolute;top:10px;right:10px;padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:800;background:rgba(255,255,255,.5);color:#2d3436}
+.lv-hover{position:absolute;inset:0;background:rgba(0,0,0,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff;font-size:.85rem;font-weight:600;border-radius:20px}
+.lv-start{margin-top:8px;padding:6px 16px;background:linear-gradient(135deg,#ffd93d,#ff6b6b);border-radius:20px;font-size:.9rem;color:#2d3436;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+.game-wrap{max-width:900px;margin:0 auto;padding:12px 20px;min-height:100vh}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.lvl-label{display:flex;align-items:center;gap:8px}
+.lvl-label .ico{font-size:1.5rem}
+.lvl-label .nm{font-size:1.2rem;font-weight:800}
+.top-btns{display:flex;gap:8px}
+.ico-btn{width:40px;height:40px;border:none;border-radius:12px;background:rgba(255,255,255,.1);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.ico-btn:hover{background:rgba(255,255,255,.2)}
+.quit-btn{color:#ff6b6b;font-weight:800;font-size:1rem}
+
+.sb{background:linear-gradient(135deg,rgba(45,52,54,.9),rgba(99,110,114,.9));border-radius:16px;padding:12px 16px;display:flex;flex-direction:column;gap:8px;margin-bottom:8px;border:1px solid rgba(255,255,255,.1)}
+.sb-row{display:flex;justify-content:space-around;gap:12px}
+.st{text-align:center;min-width:80px}
+.st-lbl{font-size:.75rem;color:rgba(255,255,255,.6);margin-bottom:2px}
+.st-val{font-size:1.4rem;font-weight:800;color:#fff}
+.st-val.sc{color:#ffd93d;font-size:1.8rem;text-shadow:0 0 15px rgba(255,217,61,.5)}
+.st-val.cb{color:#ff6b6b}
+.st-sub{font-size:.65rem;color:rgba(255,255,255,.4)}
+.st-sub.tl{color:#ff6b6b}
+.sb-row.bt .st-val{font-size:1.1rem}
+.hp{font-size:1rem;letter-spacing:2px}
+
+.gb{position:relative;width:100%;height:420px;border-radius:20px;overflow:hidden;border:2px solid rgba(255,255,255,.1);background:linear-gradient(180deg,#0a1628 0%,#1a2a4a 40%,#2a1a3a 100%)}
+.gb::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 50% 10%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 70% 40%,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 90% 80%,rgba(255,255,255,.4),transparent),radial-gradient(1.5px 1.5px at 20% 85%,rgba(255,255,255,.5),transparent),radial-gradient(1.5px 1.5px at 60% 30%,rgba(255,255,255,.4),transparent),radial-gradient(1.5px 1.5px at 80% 50%,rgba(255,255,255,.3),transparent)}
+.danger-line{position:absolute;left:0;right:0;top:88%;height:2px;z-index:5;background:repeating-linear-gradient(90deg,#ff4757 0px,#ff4757 8px,transparent 8px,transparent 16px)}
+.danger-label{position:absolute;right:10px;top:-20px;font-size:12px;color:#ff4757;font-weight:700;text-shadow:0 0 8px rgba(255,71,87,.5)}
+
+.fw{position:absolute;transform:translateX(-50%);text-align:center;z-index:10;transition:left .1s;user-select:none}
+.fw-t{font-weight:800;text-shadow:0 2px 4px rgba(0,0,0,.5),0 0 20px rgba(255,255,255,.3);white-space:nowrap;letter-spacing:2px}
+.fw-t .tp{color:#00ff88;text-shadow:0 2px 4px rgba(0,0,0,.5),0 0 20px rgba(255,255,255,.3),0 0 10px rgba(0,255,136,.6)}
+.fw-t .rp{color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5),0 0 20px rgba(255,255,255,.3)}
+.fw.active .rp{color:#ffd93d;text-shadow:0 2px 4px rgba(0,0,0,.5),0 0 20px rgba(255,255,255,.3),0 0 10px rgba(255,217,61,.6)}
+.fw.danger .rp{color:#ff6b6b}
+.fw.critical .fw-t{animation:shake .3s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.fw-hint{font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;white-space:nowrap}
+.fw-prog{height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:4px;overflow:hidden}
+.fw-prog-fill{height:100%;background:linear-gradient(90deg,#00ff88,#00d2ff);border-radius:2px;transition:width .1s}
+.fw-ind{color:#ffd93d;font-size:16px;animation:bounce .5s ease-in-out infinite;margin-top:2px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+.pt{position:absolute;border-radius:50%;pointer-events:none;z-index:20}
+
+.kb{background:linear-gradient(135deg,#2d3436,#636e72);border-radius:16px;padding:10px;margin-top:8px;box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1);user-select:none}
+.kb-row{display:flex;justify-content:center;gap:3px;margin-bottom:3px}
+.kb-row:last-child{margin-bottom:0}
+.key{display:flex;align-items:center;justify-content:center;height:34px;min-width:34px;padding:0 3px;background:linear-gradient(180deg,#f5f6fa,#dcdde1);border-radius:5px;font-size:11px;font-weight:600;color:#2d3436;text-transform:uppercase;box-shadow:0 2px 0 #b2bec3,0 3px 5px rgba(0,0,0,.2);transition:all .06s;cursor:default}
+.key.pr{background:linear-gradient(180deg,#a0d2ff,#74b9ff);box-shadow:0 1px 0 #0984e3;transform:translateY(1px)}
+.key.tg{background:linear-gradient(180deg,#ffeaa7,#fdcb6e);box-shadow:0 2px 0 #e17055,0 0 15px rgba(253,203,110,.6);animation:pulse-tg .8s ease-in-out infinite}
+.key.tg.pr{background:linear-gradient(180deg,#ff7675,#e17055);box-shadow:0 1px 0 #d63031,0 0 20px rgba(255,118,117,.8);color:#fff}
+@keyframes pulse-tg{0%,100%{box-shadow:0 2px 0 #e17055,0 0 10px rgba(253,203,110,.4)}50%{box-shadow:0 2px 0 #e17055,0 0 25px rgba(253,203,110,.8)}}
+.key.sp{background:linear-gradient(180deg,#f5f6fa,#dcdde1);font-size:10px;letter-spacing:1px}
+.key.mod{font-size:10px;background:linear-gradient(180deg,#dfe6e9,#b2bec3)}
+
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(6px);animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.ov-box{background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:24px;padding:40px;text-align:center;min-width:300px;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.ov-box h2{font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:8px}
+.ov-box p{color:rgba(255,255,255,.6);margin-bottom:20px}
+.ov-ico{font-size:4rem;margin-bottom:16px}
+.ov-sub{font-size:1.2rem;color:#ffd93d!important;font-weight:700}
+.final-row{display:flex;justify-content:center;gap:24px;margin-bottom:20px}
+.final-st{text-align:center}
+.fs-lbl{display:block;font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:4px}
+.fs-val{font-size:1.3rem;font-weight:800;color:#fff}
+.ov-btns{display:flex;gap:12px;justify-content:center}
+.btn-pri,.btn-sec{padding:12px 28px;border:none;border-radius:16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-pri{background:linear-gradient(135deg,#4d96ff,#6bcb77);color:#fff;box-shadow:0 4px 15px rgba(77,150,255,.4)}
+.btn-pri:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(77,150,255,.6)}
+.btn-sec{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.btn-sec:hover{background:rgba(255,255,255,.2)}
+.name-inp{margin-bottom:16px}
+.name-inp input{width:200px;padding:10px 16px;border:2px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-size:1rem;text-align:center;outline:none;transition:border-color .2s}
+.name-inp input:focus{border-color:#4d96ff}
+.name-inp input::placeholder{color:rgba(255,255,255,.3)}
+
+.ach-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);animation:fadeIn .3s}
+.ach-pop{position:relative;border-radius:24px;padding:3px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.ach-glow{position:absolute;inset:-2px;border-radius:26px;background:linear-gradient(135deg,#ffd93d,#ff6b6b,#4d96ff,#6bcb77);filter:blur(10px);opacity:.5;animation:glow-rot 3s linear infinite;z-index:-1}
+@keyframes glow-rot{from{filter:blur(10px) hue-rotate(0deg)}to{filter:blur(10px) hue-rotate(360deg)}}
+.ach-inner{background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:22px;padding:40px;text-align:center;min-width:280px;position:relative;z-index:1}
+.ach-ico{font-size:4rem;margin-bottom:16px;animation:bounce-ico .6s cubic-bezier(.68,-.55,.27,1.55)}
+@keyframes bounce-ico{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.ach-title{font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#ffd93d,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.ach-desc{color:rgba(255,255,255,.7);font-size:1rem;margin-bottom:16px}
+.ach-stars{margin-bottom:20px}
+.ach-stars .s{font-size:1.5rem;margin:0 2px;animation:sp .3s ease backwards}
+.ach-stars .s:nth-child(1){animation-delay:.1s}
+.ach-stars .s:nth-child(2){animation-delay:.2s}
+.ach-stars .s:nth-child(3){animation-delay:.3s}
+.ach-stars .s:nth-child(4){animation-delay:.4s}
+.ach-stars .s:nth-child(5){animation-delay:.5s}
+@keyframes sp{from{transform:scale(0) rotate(180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.ach-close{padding:12px 40px;border:none;border-radius:30px;background:linear-gradient(135deg,#6bcb77,#4d96ff);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(107,203,119,.4);transition:all .2s}
+.ach-close:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(107,203,119,.6)}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="bg-layer"></div>
+
+  <div v-if="view==='menu'" class="select-wrap">
+    <div class="header">
+      <h1 class="title">🌟 键盘小勇士</h1>
+      <p class="subtitle">选择关卡，开始打字冒险吧!</p>
+    </div>
+    <div class="tabs">
+      <button class="tab" :class="{active:tab==='all'}" @click="tab='all'">🌈 全部</button>
+      <button class="tab" :class="{active:tab==='english'}" @click="tab='english'">🔤 英文</button>
+      <button class="tab" :class="{active:tab==='pinyin'}" @click="tab='pinyin'">🀄 拼音</button>
+    </div>
+    <div class="level-grid">
+      <button v-for="lv in filteredLevels" :key="lv.id" class="lv-card" :style="{background:lv.grad}" @click="start(lv)" @mouseenter="hover=lv.id" @mouseleave="hover=null">
+        <div class="lv-icon">{{ lv.icon }}</div>
+        <div class="lv-name">{{ lv.name }}</div>
+        <div class="lv-desc">{{ lv.description }}</div>
+        <div class="lv-age">{{ lv.ageRange }}</div>
+        <div class="lv-badge">{{ lv.category==='english'?'EN':'拼音' }}</div>
+        <div v-if="hover===lv.id" class="lv-hover">
+          <div>🎯 目标 {{ lv.targetScore }} 分</div>
+          <div>💖 {{ lv.livesCount }} 条命</div>
+          <div v-if="lv.timeLimit>0">⏱ {{ lv.timeLimit }}秒</div>
+          <div class="lv-start">点击开始!</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div v-if="view==='game'" class="game-wrap">
+    <div class="game-top">
+      <div class="lvl-label"><span class="ico">{{ cur.icon }}</span><span class="nm">{{ cur.name }}</span></div>
+      <div class="top-btns">
+        <button class="ico-btn" @click="toggleAudio" :title="snd.muted?'开启声音':'静音'">{{ snd.muted?'🔇':'🔊' }}</button>
+        <button class="ico-btn" @click="togglePause">{{ paused?'▶️':'⏸' }}</button>
+        <button class="ico-btn quit-btn" @click="quit">✕</button>
+      </div>
+    </div>
+    <div class="sb">
+      <div class="sb-row">
+        <div class="st"><div class="st-lbl">🌟 得分</div><div class="st-val sc">{{ score }}</div><div class="st-sub">目标 {{ cur.targetScore }}</div></div>
+        <div class="st"><div class="st-lbl">🔥 连击</div><div class="st-val cb">x{{ combo }}</div></div>
+        <div class="st"><div class="st-lbl">⏱ 时间</div><div class="st-val">{{ fmt(et) }}</div><div v-if="cur.timeLimit>0" class="st-sub tl">{{ remaining>0?'剩余 '+fmt(remaining):'⏰' }}</div></div>
+      </div>
+      <div class="sb-row bt">
+        <div class="st"><div class="st-lbl">🎯 准确率</div><div class="st-val">{{ acc }}%</div></div>
+        <div class="st"><div class="st-lbl">⚡ 速度</div><div class="st-val">{{ wpm }} <span style="font-size:.7rem;color:rgba(255,255,255,.5)">wpm</span></div></div>
+        <div class="st"><div class="st-lbl">💖 生命</div><div class="st-val hp">{{ hearts }}</div></div>
+      </div>
+    </div>
+    <div class="gb">
+      <div class="danger-line"><span class="danger-label">⚠ 危险线</span></div>
+      <div v-for="w in words" :key="w.id" class="fw" :class="{active:w.active,danger:w.y>75,critical:w.y>88}" :style="{left:w.x+'%',top:w.y+'%',fontSize:w.fs}">
+        <div class="fw-t"><span class="tp">{{ w.typed }}</span><span class="rp">{{ w.word.text.slice(w.typed.length) }}</span></div>
+        <div v-if="w.word.display!==w.word.text" class="fw-hint">{{ w.word.display }}</div>
+        <div v-if="w.active&&w.typed.length>0" class="fw-prog"><div class="fw-prog-fill" :style="{width:(w.typed.length/w.word.text.length*100)+'%'}"></div></div>
+        <div v-if="w.active" class="fw-ind">▼</div>
+      </div>
+      <div v-for="p in particles" :key="p.id" class="pt" :style="{left:p.x+'%',top:p.y+'%',backgroundColor:p.color,width:p.size+'px',height:p.size+'px',opacity:p.life}"></div>
+    </div>
+    <div class="kb">
+      <div class="kb-row">
+        <div v-for="k in kbRows[0]" :key="k" class="key" :class="keyCls(k)" :style="{minWidth:kw(k)+'em'}">{{ klb(k) }}</div>
+        <div class="key mod" :class="{pr:pk('Backspace')}" style="minWidth:2em">⌫</div>
+      </div>
+      <div class="kb-row">
+        <div class="key mod" :class="{pr:pk('Tab')}" style="minWidth:1.5em">Tab</div>
+        <div v-for="k in kbRows[1]" :key="k" class="key" :class="keyCls(k)" :style="{minWidth:kw(k)+'em'}">{{ klb(k) }}</div>
+      </div>
+      <div class="kb-row">
+        <div class="key mod" :class="{pr:capsLock}" style="minWidth:1.8em">Caps</div>
+        <div v-for="k in kbRows[2]" :key="k" class="key" :class="keyCls(k)" :style="{minWidth:kw(k)+'em'}">{{ klb(k) }}</div>
+        <div class="key mod" :class="{pr:pk('Enter')}" style="minWidth:2.2em">Enter</div>
+      </div>
+      <div class="kb-row">
+        <div class="key mod" :class="{pr:pk('Shift')}" style="minWidth:2.2em">Shift</div>
+        <div v-for="k in kbRows[3]" :key="k" class="key" :class="keyCls(k)" :style="{minWidth:kw(k)+'em'}">{{ klb(k) }}</div>
+        <div class="key mod" :class="{pr:pk('Shift')}" style="minWidth:2.5em">Shift</div>
+      </div>
+      <div class="kb-row"><div class="key sp" :class="{pr:pk(' ')}" style="minWidth:20em">␣ 空格键</div></div>
+    </div>
+  </div>
+
+  <div v-if="paused" class="ov" @click="togglePause"><div class="ov-box"><div class="ov-ico">⏸</div><h2>游戏暂停</h2><p>点击任意位置继续</p></div></div>
+
+  <div v-if="gameover" class="ov"><div class="ov-box">
+    <div class="ov-ico">💪</div><h2>继续加油!</h2>
+    <div class="final-row">
+      <div class="final-st"><span class="fs-lbl">得分</span><span class="fs-val">{{ score }}</span></div>
+      <div class="final-st"><span class="fs-lbl">准确率</span><span class="fs-val">{{ acc }}%</span></div>
+      <div class="final-st"><span class="fs-lbl">最高连击</span><span class="fs-val">{{ maxCombo }}</span></div>
+    </div>
+    <div class="ov-btns"><button class="btn-pri" @click="retry">🔄 再来一次</button><button class="btn-sec" @click="quit">🏠 返回首页</button></div>
+  </div></div>
+
+  <div v-if="levelComplete" class="ov"><div class="ov-box">
+    <div class="ov-ico">🏆</div><h2>太厉害了!</h2><p class="ov-sub">你获得了 {{ score }} 分!</p>
+    <div class="final-row">
+      <div class="final-st"><span class="fs-lbl">准确率</span><span class="fs-val">{{ acc }}%</span></div>
+      <div class="final-st"><span class="fs-lbl">速度</span><span class="fs-val">{{ wpm }} wpm</span></div>
+      <div class="final-st"><span class="fs-lbl">最高连击</span><span class="fs-val">{{ maxCombo }}</span></div>
+    </div>
+    <div class="name-inp"><input v-model="pname" placeholder="输入你的名字" maxlength="20" @keyup.enter="saveAndQuit" /></div>
+    <div class="ov-btns"><button class="btn-pri" @click="saveAndQuit">💾 保存成绩</button><button class="btn-sec" @click="quit">🏠 返回首页</button></div>
+  </div></div>
+
+  <div v-if="ach" class="ach-ov" @click="ach=null">
+    <div class="ach-pop" @click.stop><div class="ach-glow"></div>
+      <div class="ach-inner">
+        <div class="ach-ico">{{ ach.icon }}</div><h2 class="ach-title">{{ ach.title }}</h2><p class="ach-desc">{{ ach.description }}</p>
+        <div class="ach-stars"><span class="s" v-for="i in 5" :key="i">⭐</span></div>
+        <button class="ach-close" @click="ach=null">太棒了!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, watch, onMounted, onUnmounted, nextTick } = Vue
+
+const LEVELS = (()=>{
+  const enG=['linear-gradient(135deg,#a8e6cf,#88d8b0)','linear-gradient(135deg,#ffd3b6,#ffaaa5)','linear-gradient(135deg,#dcedc1,#c5e8b7)','linear-gradient(135deg,#a8d8ea,#aa96da)','linear-gradient(135deg,#ff9a9e,#fecfef)','linear-gradient(135deg,#84fab0,#8fd3f4)','linear-gradient(135deg,#fccb90,#d57eeb)']
+  const pyG=['linear-gradient(135deg,#ffecd2,#fcb69f)','linear-gradient(135deg,#e0c3fc,#8ec5fc)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)']
+  const mk=(t,d)=>({text:t,display:d})
+  return [
+    {id:1,name:'字母小星星',description:'一个个字母就像小星星',category:'english',ageRange:'6-7岁',icon:'⭐',speed:.3,spawnInterval:2500,livesCount:10,targetScore:100,timeLimit:0,words:'abcdefghijklmnopqrstuvwxyz'.split('').map(c=>mk(c,c)),grad:enG[0]},
+    {id:2,name:'大小写大冒险',description:'大小写字母都要认识',category:'english',ageRange:'7-8岁',icon:'🔤',speed:.5,spawnInterval:2200,livesCount:8,targetScore:150,timeLimit:0,words:[...'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(c=>mk(c,c)),grad:enG[1]},
+    {id:3,name:'单词小达人',description:'简单的英文单词',category:'english',ageRange:'8-9岁',icon:'🌿',speed:.5,spawnInterval:3000,livesCount:8,targetScore:200,timeLimit:0,words:'cat,dog,sun,run,big,red,hat,cup,bed,box,pen,map,bus,egg,ant,owl,fox,pig,cow,hen,bat,fly,joy,sky,top,fun,hot,wet,sad,win'.split(',').map(c=>mk(c,c)),grad:enG[2]},
+    {id:4,name:'词汇小高手',description:'常用的英文单词',category:'english',ageRange:'9-11岁',icon:'🌳',speed:.6,spawnInterval:3500,livesCount:6,targetScore:300,timeLimit:0,words:'apple,house,happy,green,water,light,tiger,smile,bread,cloud,dance,earth,fruit,grass,heart,juice,kitty,lemon,music,night,ocean,piano,queen,river,stone,table,uncle,voice,watch,young,zebra,dream'.split(',').map(c=>mk(c,c)),grad:enG[3]},
+    {id:5,name:'拼词大挑战',description:'更长的英文单词',category:'english',ageRange:'11-13岁',icon:'🔥',speed:.7,spawnInterval:4000,livesCount:5,targetScore:400,timeLimit:120,words:'beautiful,elephant,computer,mountain,birthday,champion,dinosaur,engineer,football,gorgeous,homework,internet,jellyfish,kingdom,language,mushroom,necklace,opposite,penguin,question,rainbow,sandwich,tomorrow,umbrella,vacation,wonderful,xylophone,yesterday,adventure,butterfly'.split(',').map(c=>mk(c,c)),grad:enG[4]},
+    {id:6,name:'句子小作家',description:'完整的英文句子',category:'english',ageRange:'13-16岁',icon:'📝',speed:.6,spawnInterval:6000,livesCount:5,targetScore:400,timeLimit:180,words:['I like to play outside.','The cat is sleeping.','She has a red apple.','We go to school every day.','He can run very fast.','The sun is bright today.','My dog likes to jump.','They are good friends.','I want to learn more.','Let us have some fun!'].map(c=>mk(c,c)),grad:enG[5]},
+    {id:11,name:'声母小火车',description:'拼音声母练习',category:'pinyin',ageRange:'6-7岁',icon:'🚂',speed:.3,spawnInterval:2500,livesCount:10,targetScore:100,timeLimit:0,words:'b,p,m,f,d,t,n,l,g,k,h,j,q,x,zh,ch,sh,r,z,c,s,y,w'.split(',').map(c=>mk(c,c)),grad:pyG[0]},
+    {id:12,name:'韵母小乐园',description:'拼音韵母练习',category:'pinyin',ageRange:'7-8岁',icon:'🎵',speed:.4,spawnInterval:2500,livesCount:10,targetScore:150,timeLimit:0,words:[mk('a','a (啊)'),mk('o','o (哦)'),mk('e','e (鹅)'),mk('i','i (衣)'),mk('u','u (乌)'),mk('ü','ü (鱼)'),mk('ai','ai (爱)'),mk('ei','ei (诶)'),mk('ui','ui (威)'),mk('ao','ao (奥)'),mk('ou','ou (欧)'),mk('iu','iu (优)'),mk('ie','ie (耶)'),mk('üe','üe (约)'),mk('er','er (儿)'),mk('an','an (安)'),mk('en','en (恩)'),mk('in','in (因)'),mk('un','un (温)'),mk('ün','ün (晕)'),mk('ang','ang (昂)'),mk('eng','eng (鞥)'),mk('ing','ing (英)'),mk('ong','ong (轰)')],grad:pyG[1]},
+    {id:13,name:'拼音小勇士',description:'完整拼音音节',category:'pinyin',ageRange:'8-9岁',icon:'🦸',speed:.5,spawnInterval:3000,livesCount:8,targetScore:200,timeLimit:0,words:[mk('ba','ba (八)'),mk('pa','pa (爬)'),mk('ma','ma (妈)'),mk('fa','fa (发)'),mk('da','da (大)'),mk('ta','ta (他)'),mk('na','na (拿)'),mk('la','la (拉)'),mk('ga','ga (嘎)'),mk('ka','ka (卡)'),mk('ha','ha (哈)'),mk('ji','ji (鸡)'),mk('qi','qi (七)'),mk('xi','xi (西)'),mk('zhi','zhi (知)'),mk('chi','chi (吃)'),mk('shi','shi (师)'),mk('ri','ri (日)'),mk('zi','zi (字)'),mk('ci','ci (词)'),mk('si','si (四)'),mk('bo','bo (波)'),mk('po','po (泼)'),mk('mo','mo (摸)'),mk('fo','fo (佛)'),mk('de','de (的)'),mk('te','te (特)'),mk('ne','ne (呢)'),mk('le','le (了)'),mk('ge','ge (哥)'),mk('ke','ke (科)'),mk('he','he (喝)'),mk('gu','gu (姑)'),mk('ku','ku (哭)'),mk('hu','hu (呼)'),mk('zhu','zhu (猪)'),mk('chu','chu (出)'),mk('shu','shu (书)'),mk('ru','ru (如)'),mk('zu','zu (组)'),mk('cu','cu (粗)'),mk('su','su (苏)'),mk('ju','ju (句)'),mk('qu','qu (去)'),mk('xu','xu (需)'),mk('nü','nü (女)'),mk('lü','lü (绿)')],grad:pyG[2]},
+    {id:14,name:'词语小博士',description:'拼音词语练习',category:'pinyin',ageRange:'9-11岁',icon:'📚',speed:.6,spawnInterval:4000,livesCount:6,targetScore:300,timeLimit:0,words:[mk('mama','māma (妈妈)'),mk('baba','bàba (爸爸)'),mk('xuexiao','xuéxiào (学校)'),mk('laoshi','lǎoshī (老师)'),mk('pengyou','péngyǒu (朋友)'),mk('dongwu','dòngwù (动物)'),mk('shuiguo','shuǐguǒ (水果)'),mk('taiyang','tàiyáng (太阳)'),mk('yueliang','yuèliàng (月亮)'),mk('xingxing','xīngxīng (星星)'),mk('kuaile','kuàilè (快乐)'),mk('meili','měilì (美丽)'),mk('yonggan','yǒnggǎn (勇敢)'),mk('congming','cōngmíng (聪明)'),mk('zhongguo','zhōngguó (中国)'),mk('shijie','shìjiè (世界)'),mk('kexue','kēxué (科学)'),mk('yinyue','yīnyuè (音乐)'),mk('tushu','túshū (图书)'),mk('yundong','yùndòng (运动)')],grad:pyG[3]},
+    {id:15,name:'句子小诗人',description:'拼音短句练习',category:'pinyin',ageRange:'11-13岁',icon:'✍️',speed:.6,spawnInterval:6000,livesCount:5,targetScore:400,timeLimit:180,words:[mk('wo ai xue xi','wǒ ài xué xí (我爱学习)'),mk('jin tian tian qi zhen hao','jīn tiān tiān qì zhēn hǎo (今天天气真好)'),mk('wo men qu gong yuan wan','wǒ men qù gōng yuán wán (我们去公园玩)'),mk('xiao mao zai shui jiao','xiǎo māo zài shuì jiào (小猫在睡觉)'),mk('ta shi wo zui hao de peng you','tā shì wǒ zuì hǎo de péng yǒu (他是我最好的朋友)'),mk('wo xi huan kan shu he hua hua','wǒ xǐ huān kàn shū hé huà huà (我喜欢看书和画画)'),mk('ma ma zuo le hao chi de dan gao','mā ma zuò le hǎo chī de dàn gāo (妈妈做了好吃的蛋糕)'),mk('yong gan de xiao peng you bu ku','yǒng gǎn de xiǎo péng yǒu bù kū (勇敢的小朋友不哭)')],grad:pyG[4]},
+    {id:16,name:'拼音总冠军',description:'拼音段落挑战',category:'pinyin',ageRange:'13-16岁',icon:'👑',speed:.55,spawnInterval:8000,livesCount:5,targetScore:500,timeLimit:300,words:[mk('chun tian lai le hua er kai le xiao niao zai shu shang chang ge','春天来了，花儿开了，小鸟在树上唱歌'),mk('wo you yi ge meng xiang zhang da yi hou yao dang yi ming ke xue jia','我有一个梦想，长大以后要当一名科学家'),mk('du shu shi yi jian hen you qu de shi qing neng rang wo men xue dao hen duo zhi shi','读书是一件很有趣的事情，能让我们学到很多知识'),mk('mei tian jian chi duan lian shen ti cai neng jian jian kang kang de cheng zhang','每天坚持锻炼，身体才能健健康康地成长')],grad:pyG[5]},
+  ]
+})()
+
+const KB_ROWS=[['`','1','2','3','4','5','6','7','8','9','0','-','='],['q','w','e','r','t','y','u','i','o','p','[',']','\\'],['a','s','d','f','g','h','j','k','l',';',"'"],['z','x','c','v','b','n','m',',','.','/']]
+const SP_KEYS={Backspace:{label:'⌫',w:2},Tab:{label:'Tab',w:1.5},CapsLock:{label:'Caps',w:1.8},Enter:{label:'Enter',w:2.2},ShiftLeft:{label:'Shift',w:2.2},ShiftRight:{label:'Shift',w:2.5}}
+
+const snd={muted:false,_ctx:null,_get(){if(!this._ctx)this._ctx=new(window.AudioContext||window.webkitAudioContext)();return this._ctx},key(){if(this.muted)return;try{const c=this._get(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=800;g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.06);o.start(c.currentTime);o.stop(c.currentTime+.06)}catch(e){}},score(){if(this.muted)return;try{const c=this._get(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(523,c.currentTime);o.frequency.setValueAtTime(659,c.currentTime+.08);o.frequency.setValueAtTime(784,c.currentTime+.16);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);o.start(c.currentTime);o.stop(c.currentTime+.3)}catch(e){}},error(){if(this.muted)return;try{const c=this._get(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='square';o.frequency.setValueAtTime(200,c.currentTime);o.frequency.setValueAtTime(150,c.currentTime+.1);g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.2);o.start(c.currentTime);o.stop(c.currentTime+.2)}catch(e){}},levelUp(){if(this.muted)return;try{const c=this._get();[523,587,659,698,784,880,988,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.1;g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.15);o.start(t);o.stop(t+.15)})}catch(e){}},combo(n){if(this.muted)return;try{const c=this._get(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=400+Math.min(n,20)*30;g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.15);o.start(c.currentTime);o.stop(c.currentTime+.15)}catch(e){}}}
+
+createApp({setup(){
+  const view=ref('menu'),tab=ref('all'),hover=ref(null),cur=ref(LEVELS[0]),paused=ref(false),gameover=ref(false),levelComplete=ref(false),ach=ref(null),pname=ref('')
+  const score=ref(0),combo=ref(0),maxCombo=ref(0),correct=ref(0),total=ref(0),lives=ref(5),et=ref(0),words=ref([]),particles=ref([]),input=ref(''),targetId=ref(null),pressed=ref(new Set()),capsLock=ref(false)
+  let wid=0,startTs=0,gameTimer=null,spawnTimer=null,partTimer=null
+
+  const filteredLevels=computed(()=>{if(tab.value==='english')return LEVELS.filter(l=>l.category==='english');if(tab.value==='pinyin')return LEVELS.filter(l=>l.category==='pinyin');return LEVELS})
+  const acc=computed(()=>total.value===0?100:Math.round(correct.value/total.value*100))
+  const wpm=computed(()=>{const m=et.value/60;return m===0?0:Math.round(correct.value/5/m)})
+  const hearts=computed(()=>'❤️'.repeat(Math.max(0,lives.value))+'🖤'.repeat(Math.max(0,5-lives.value)))
+  const remaining=computed(()=>cur.value.timeLimit===0?Infinity:cur.value.timeLimit-et.value)
+  const kbRows=computed(()=>KB_ROWS)
+  function fmt(s){const m=Math.floor(s/60),sec=s%60;return m+':'+String(sec).padStart(2,'0')}
+  function kw(k){return SP_KEYS[k]?.w||1}
+  function klb(k){return SP_KEYS[k]?.label||k}
+  function pk(k){return pressed.value.has(k)||pressed.value.has(k.toLowerCase())||pressed.value.has(k.toUpperCase())}
+  function keyCls(k){const c=['key'];if(pk(k))c.push('pr');if(targetId.value){const w=words.value.find(x=>x.id===targetId.value);if(w){const next=w.word.text.slice(w.typed.length)[0];if(next&&(k===next||k===next.toLowerCase()))c.push('tg')}}return c.join(' ')}
+
+  function onKD(e){if(view.value!=='game'||paused.value||gameover.value||levelComplete.value)return;e.preventDefault();const k=e.key;const s=new Set(pressed.value);s.add(k);pressed.value=s;if(k==='CapsLock'){capsLock.value=!capsLock.value;return}snd.key();handleInput(k)}
+  function onKU(e){const s=new Set(pressed.value);s.delete(e.key);pressed.value=s}
+
+  function handleInput(k){
+    if(k==='Backspace'||k==='Delete'){if(input.value.length>0){input.value=input.value.slice(0,-1);const w=words.value.find(x=>x.id===targetId.value);if(w)w.typed=input.value}return}
+    if(k.length!==1)return
+    input.value+=k
+    let matched=null
+    if(targetId.value){const cw=words.value.find(x=>x.id===targetId.value);if(cw&&cw.word.text.startsWith(input.value))matched=cw}
+    if(!matched)matched=words.value.find(x=>x.word.text.startsWith(input.value))
+    if(matched){matched.typed=input.value;if(!matched.active){const prev=words.value.find(x=>x.id===targetId.value);if(prev)prev.active=false;targetId.value=matched.id;matched.active=true}
+      if(input.value===matched.word.text){onWordDone(matched)}else{snd.score()}}else{total.value++;combo.value=0;snd.error()
+      if(targetId.value){const t=words.value.find(x=>x.id===targetId.value);if(t&&!t.word.text.startsWith(input.value)){input.value='';if(t)t.typed=''}}else{input.value=''}}
+  }
+  function onWordDone(w){combo.value++;total.value++;correct.value++;if(combo.value>maxCombo.value)maxCombo.value=combo.value;const base=w.word.text.length*10,bonus=Math.min(combo.value-1,10)*5;score.value+=base+bonus;spawnParts(w.x,w.y,w.word.text.length);checkAch();words.value=words.value.filter(x=>x.id!==w.id);input.value='';targetId.value=null;if(words.value.length>0){const next=words.value[0];targetId.value=next.id;next.active=true}if(score.value>=cur.value.targetScore)doLevelComplete()}
+  function loseLife(){lives.value--;combo.value=0;if(lives.value<=0)doGameover()}
+  function spawnParts(x,y,n){const colors=['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF8FE8','#FFB347'];const now=Date.now();for(let i=0;i<n*3;i++){const a=Math.PI*2*i/(n*3),sp=1+Math.random()*3;particles.value.push({id:now+i,x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,color:colors[Math.floor(Math.random()*colors.length)],life:1,size:3+Math.random()*5})}}
+  function checkAch(){let a=null;if(combo.value>=20)a={id:'c20',title:'键盘超人',description:'连续打对20个！！太厉害了！',icon:'🦸'};else if(combo.value>=10)a={id:'c10',title:'连击大魔王',description:'连续打对10个！',icon:'⚡'};else if(combo.value>=5)a={id:'c5',title:'连击小能手',description:'连续打对5个！',icon:'🔥'};if(correct.value===1&&total.value===1)a={id:'first',title:'初次登场',description:'完成第一个打字！',icon:'🎉'};if(correct.value>=50&&correct.value===total.value)a={id:'p50',title:'完美50连',description:'前50个全对！',icon:'💎'};if(a){ach.value=a;setTimeout(()=>{ach.value=null},2500)}}
+  function spawnWord(){const pool=cur.value.words;if(!pool||pool.length===0)return;const w=pool[Math.floor(Math.random()*pool.length)];const len=w.text.length;const fs=len<=1?'3.5rem':len<=3?'2rem':len<=6?'1.5rem':len<=15?'1.2rem':'1rem';const nw={id:++wid,word:w,x:(len>30?42+Math.random()*16:len>15?32+Math.random()*36:len>8?22+Math.random()*56:len>4?14+Math.random()*72:10+Math.random()*80),y:-5,typed:'',speed:cur.value.speed*(.7+Math.random()*.6),active:targetId.value===null,fs};words.value.push(nw);if(targetId.value===null){targetId.value=nw.id;nw.active=true}}
+  function updateAll(){for(const w of words.value)w.y+=w.speed;const bottom=words.value.filter(w=>w.y>=95);for(const w of bottom){if(w.active)loseLife();words.value=words.value.filter(x=>x.id!==w.id);if(targetId.value===w.id){input.value='';targetId.value=null}};particles.value=particles.value.map(p=>({...p,x:p.x+p.vx*.3,y:p.y+p.vy*.3,life:p.life-.02})).filter(p=>p.life>0)}
+  function doLevelComplete(){levelComplete.value=true;snd.levelUp();clearTimers()}
+  function doGameover(){gameover.value=true;clearTimers()}
+  function clearTimers(){if(gameTimer){clearInterval(gameTimer);gameTimer=null}if(spawnTimer){clearInterval(spawnTimer);spawnTimer=null}if(partTimer){clearInterval(partTimer);partTimer=null}}
+  function start(lv){cur.value=lv;score.value=0;combo.value=0;maxCombo.value=0;correct.value=0;total.value=0;lives.value=lv.livesCount;et.value=0;words.value=[];input.value='';targetId.value=null;particles.value=[];paused.value=false;gameover.value=false;levelComplete.value=false;ach.value=null;wid=0;startTs=Date.now();view.value='game';clearTimers();gameTimer=setInterval(()=>{et.value=Math.floor((Date.now()-startTs)/1000);if(lv.timeLimit>0&&et.value>=lv.timeLimit){if(score.value>=lv.targetScore)doLevelComplete();else doGameover()}},200);spawnWord();spawnTimer=setInterval(()=>{if(!paused.value&&!gameover.value&&!levelComplete.value)spawnWord()},lv.spawnInterval);partTimer=setInterval(()=>{if(!paused.value)updateAll()},50)}
+  function retry(){start(cur.value)}
+  function quit(){clearTimers();view.value='menu';paused.value=false;gameover.value=false;levelComplete.value=false}
+  function togglePause(){if(paused.value){paused.value=false;gameTimer=setInterval(()=>{et.value=Math.floor((Date.now()-startTs)/1000)},200);spawnTimer=setInterval(()=>{if(!paused.value&&!gameover.value&&!levelComplete.value)spawnWord()},cur.value.spawnInterval);partTimer=setInterval(()=>{if(!paused.value)updateAll()},50)}else{paused.value=true;clearTimers()}}
+  function toggleAudio(){snd.muted=!snd.muted}
+  function saveAndQuit(){let name=pname.value.trim()||('小勇士'+Math.floor(Math.random()*1000));try{const data=JSON.parse(localStorage.getItem('typing_kids_scores')||'[]');data.push({playerName:name,levelId:cur.value.id,category:cur.value.category,score:score.value,accuracy:acc.value,wpm:wpm.value,maxCombo:maxCombo.value,time:et.value,date:new Date().toISOString()});localStorage.setItem('typing_kids_scores',JSON.stringify(data.slice(-100)))}catch(e){}quit()}
+  onMounted(()=>{window.addEventListener('keydown',onKD);window.addEventListener('keyup',onKU)})
+  onUnmounted(()=>{window.removeEventListener('keydown',onKD);window.removeEventListener('keyup',onKU);clearTimers()})
+  return{view,tab,hover,cur,paused,gameover,levelComplete,ach,pname,score,combo,maxCombo,correct,total,lives,et,words,particles,targetId,pressed,capsLock,filteredLevels,acc,wpm,hearts,remaining,kbRows,snd,fmt,kw,klb,pk,keyCls,start,retry,quit,togglePause,toggleAudio,saveAndQuit}
+}}).mount('#app')
+</script>
+</body>
+</html>
