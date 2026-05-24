@@ -1,6 +1,6 @@
 # 🎮 键盘小勇士 - Typing Game
 
-> 给 typing_game 小朋友的打字练习游戏 ✨
+> 给 qyt 小朋友的打字练习游戏 ✨
 
 一款专为儿童设计的打字练习游戏，支持 **英文** 和 **拼音** 双路径学习。
 由 Tauri + Vue 3 + Rust 驱动，桌面端体验流畅。
@@ -159,4 +159,4 @@ MIT License
 
 ---
 
-*Made with ❤️ for typing_game*
+*Made with ❤️ for qyt*
